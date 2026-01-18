@@ -1,0 +1,13 @@
+<div id="graph-container" style="width: 100%; height: 600px;"></div>
+
+@inject IJSRuntime JSRuntime
+
+@code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JSRuntime.InvokeVoidAsync("renderD3Graph", "graph-container");
+        }
+    }
+}
