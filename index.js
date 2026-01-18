@@ -74,8 +74,8 @@ const numSubtrees = rootChildren.length;
 // --- Simulation Setup ---
 
 const simulation = d3.forceSimulation(nodes)
-    .force("link", d3.forceLink(links).id(d => d.id).distance(150))
-    .force("charge", d3.forceManyBody().strength(-350))
+    .force("link", d3.forceLink(links).id(d => d.id).distance(200))
+    .force("charge", d3.forceManyBody().strength(-500))
     .force("y", d3.forceY(d => d.level * 180 + 100).strength(1))
     .force("x", d3.forceX(d => {
         if (d.id === 'Root') {
@@ -86,7 +86,7 @@ const simulation = d3.forceSimulation(nodes)
         const xStart = (width - totalWidth) / 2;
         return xStart + d.subtree * separation;
     }).strength(0.8))
-    .force("collide", d3.forceCollide().radius(d => (d.id.length * 4) + 25));
+    .force("collide", d3.forceCollide().radius(d => (d.id.length * 6) + 40));
 
 
 // --- SVG Rendering ---
@@ -124,7 +124,7 @@ link.append("line")
 link.append("text")
     .attr("font-size", 10)
     .attr("fill", "#000")
-    .attr("dy", ".35em")
+    .attr("dy", "-0.5em") // Offset from the line
     .attr("text-anchor", "middle")
     .text(d => d.label);
 
@@ -134,16 +134,38 @@ const node = container.append("g")
     .data(nodes)
     .join("g");
 
-node.append("circle")
-    .attr("r", 10)
-    .attr("fill", "black");
+const nodePadding = 10;
 
-node.append("text")
-    .attr("dx", 12)
+// Update the node structure to have a rectangle and text
+const nodeGroup = node.append("g");
+
+nodeGroup.append("rect")
+    .attr("rx", 3)
+    .attr("ry", 3)
+    .attr("fill", "#eee")
+    .attr("stroke", "#999")
+    .attr("stroke-width", 1.5);
+
+nodeGroup.append("text")
     .attr("dy", ".35em")
+    .attr("text-anchor", "middle")
     .text(d => d.id)
     .attr("font-size", 12)
     .attr("fill", "#000");
+
+// Adjust rect size based on text size after rendering
+node.each(function(d) {
+    const textElement = d3.select(this).select("text").node();
+    if (textElement) {
+        const bbox = textElement.getBBox();
+        d3.select(this).select("rect")
+            .attr("x", bbox.x - nodePadding)
+            .attr("y", bbox.y - nodePadding)
+            .attr("width", bbox.width + 2 * nodePadding)
+            .attr("height", bbox.height + 2 * nodePadding);
+    }
+});
+
 
 simulation.on("tick", () => {
     link.select("line")
@@ -153,8 +175,20 @@ simulation.on("tick", () => {
         .attr("y2", d => d.target.y);
 
     link.select("text")
-        .attr("x", d => (d.source.x + d.target.x) / 2)
-        .attr("y", d => (d.source.y + d.target.y) / 2);
+        .attr("x", d => {
+            const dx = d.target.x - d.source.x;
+            const dy = d.target.y - d.source.y;
+            const len = Math.sqrt(dx * dx + dy * dy);
+            const offsetX = (dy / len) * 15; // Perpendicular offset
+            return (d.source.x + d.target.x) / 2 + offsetX;
+        })
+        .attr("y", d => {
+            const dx = d.target.x - d.source.x;
+            const dy = d.target.y - d.source.y;
+            const len = Math.sqrt(dx * dx + dy * dy);
+            const offsetY = (-dx / len) * 15; // Perpendicular offset
+            return (d.source.y + d.target.y) / 2 + offsetY;
+        });
 
     node.attr("transform", d => `translate(${d.x},${d.y})`);
 });
