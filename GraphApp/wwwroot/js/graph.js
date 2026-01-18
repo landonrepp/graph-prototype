@@ -1,26 +1,7 @@
-window.renderD3Graph = function (containerId) {
+window.renderD3Graph = function (containerId, nodesData, linksData) {
     const data = {
-        nodes: [
-            { id: "Root" },
-            { id: "L1-A" },
-            { id: "L1-B" },
-            { id: "very long label test" },
-            { id: "L2-B" },
-            { id: "L2-C" },
-            { id: "L2-D long label" },
-            { id: "L3-A" },
-            { id: "L3-B" },
-        ],
-        links: [
-            { source: "Root", target: "L1-A", label: "rel" },
-            { source: "Root", target: "L1-B", label: "rel" },
-            { source: "L1-A", target: "very long label test", label: "rel" },
-            { source: "L1-A", target: "L2-B", label: "rel" },
-            { source: "L1-B", target: "L2-C", label: "rel" },
-            { source: "L1-B", target: "L2-D long label", label: "rel" },
-            { source: "very long label test", target: "L3-A", label: "rel" },
-            { source: "L2-D long label", target: "L3-B", label: "rel" },
-        ]
+        nodes: nodesData,
+        links: linksData
     };
 
     const width = window.innerWidth;
