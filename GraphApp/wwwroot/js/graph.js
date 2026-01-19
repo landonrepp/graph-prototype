@@ -14,9 +14,9 @@ window.renderD3Graph = function (containerId, nodesData, linksData, dotnetObject
 
     const simulation = d3.forceSimulation(nodes)
         .force("link", d3.forceLink(links).id(d => d.id).distance(d => 100 + (d.label || "").length * 5))
-        .force("charge", d3.forceManyBody().strength(-1500))
+        .force("charge", d3.forceManyBody().strength(-1))
         .force("center", d3.forceCenter(width / 2, height / 2))
-        .force("collide", d3.forceCollide().radius(d => (d.id.length * 10) + 80));
+        .force("collide", d3.forceCollide().radius(d => (d.id.length) * 3 + 80));
 
 
     // --- SVG Rendering ---

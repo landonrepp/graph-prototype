@@ -1,48 +1,20 @@
+@inject KustoService Kusto
 <div id="graph-container" style="width: 100%; height: 600px;"></div>
 
 @inject IJSRuntime JSRuntime
 
 @code {
-    public class Node
+    private List<Node> Nodes { get; set; } = new List<Node>();
+    private List<Link> Links { get; set; } = new List<Link>();
+
+    protected override async Task OnInitializedAsync()
     {
-        public string Id { get; set; }
+        (Nodes, Links) = await Kusto.GetStormEventsGraphData();
     }
-
-    public class Link
-    {
-        public string Source { get; set; }
-        public string Target { get; set; }
-        public string Label { get; set; }
-    }
-
-    private List<Node> Nodes { get; set; } = new List<Node>
-    {
-        new Node { Id = "Root" },
-        new Node { Id = "L1-A" },
-        new Node { Id = "L1-B" },
-        new Node { Id = "very long label test" },
-        new Node { Id = "L2-B" },
-        new Node { Id = "L2-C" },
-        new Node { Id = "L2-D long label" },
-        new Node { Id = "L3-A" },
-        new Node { Id = "L3-B" },
-    };
-
-    private List<Link> Links { get; set; } = new List<Link>
-    {
-        new Link { Source = "Root", Target = "L1-A", Label = "rel" },
-        new Link { Source = "Root", Target = "L1-B", Label = "rel" },
-        new Link { Source = "L1-A", Target = "very long label test", Label = "rel" },
-        new Link { Source = "L1-A", Target = "L2-B", Label = "rel" },
-        new Link { Source = "L1-B", Target = "L2-C", Label = "rel" },
-        new Link { Source = "L1-B", Target = "L2-D long label", Label = "rel" },
-        new Link { Source = "very long label test", Target = "L3-A", Label = "rel" },
-        new Link { Source = "L2-D long label", Target = "L3-B", Label = "rel" },
-    };
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender)
+        if (Nodes.Any())
         {
             await JSRuntime.InvokeVoidAsync("renderD3Graph", "graph-container", Nodes, Links, DotNetObjectReference.Create(this));
         }
