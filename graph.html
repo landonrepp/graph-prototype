@@ -5,8 +5,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Graph View</title>
     <style>
-        body { margin: 0; overflow: hidden; }
+        body { 
+            margin: 0; 
+            overflow: hidden; 
+            background-color: #333;
+            color: white;
+        }
         #app { width: 100vw; height: 100vh; }
+        .node text {
+            fill: #fff;
+            background-color: green;
+        }
+
+        .node rect {
+            fill: green;
+            stroke: #333;
+            stroke-width: 1px;
+        }
+
+        .link {
+            stroke: #999;
+            stroke-opacity: .6;
+            stroke-width: 1px;
+        }
+
+        text {
+            cursor: pointer;
+            background-color: green;
+            fill: white;
+        }
     </style>
     <script src="https://d3js.org/d3.v7.min.js"></script>
 </head>

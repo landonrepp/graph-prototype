@@ -84,6 +84,7 @@ window.renderD3Graph = function (containerId, nodesData, linksData, dotnetObject
         .attr("dy", ".35em")
         .attr("text-anchor", "middle")
         .text(d => d.id)
+        .attr("class", "label")
         .attr("font-size", 12)
         .attr("fill", "#000");
 
