@@ -1,4 +1,4 @@
-window.renderD3Graph = function (containerId, nodesData, linksData) {
+window.renderD3Graph = function (containerId, nodesData, linksData, dotnetObject) {
     const data = {
         nodes: nodesData,
         links: linksData
@@ -120,7 +120,10 @@ window.renderD3Graph = function (containerId, nodesData, linksData) {
     const nodePadding = 10;
 
     // Update the node structure to have a rectangle and text
-    const nodeGroup = node.append("g");
+    const nodeGroup = node.append("g")
+        .on("click", (event, d) => {
+            dotnetObject.invokeMethodAsync('OnLabelClicked', d.id);
+        });
 
     nodeGroup.append("rect")
         .attr("rx", 3)

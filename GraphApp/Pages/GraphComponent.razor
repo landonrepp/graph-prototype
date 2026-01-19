@@ -44,7 +44,13 @@
     {
         if (firstRender)
         {
-            await JSRuntime.InvokeVoidAsync("renderD3Graph", "graph-container", Nodes, Links);
+            await JSRuntime.InvokeVoidAsync("renderD3Graph", "graph-container", Nodes, Links, DotNetObjectReference.Create(this));
         }
+    }
+
+    [JSInvokable]
+    public void OnLabelClicked(string nodeId)
+    {
+        Console.WriteLine($"Node {nodeId} was clicked!");
     }
 }
