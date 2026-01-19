@@ -10,65 +10,13 @@ window.renderD3Graph = function (containerId, nodesData, linksData, dotnetObject
     const links = data.links.map(d => ({ ...d }));
     const nodes = data.nodes.map(d => ({ ...d }));
 
-    // --- Layout Calculation ---
-
-    // 1. Calculate node levels (y-position)
-    const nodeLevels = {};
-    function setLevels(nodeId, level) {
-        const existingLevel = nodeLevels[nodeId];
-        if (existingLevel === undefined || existingLevel < level) {
-            nodeLevels[nodeId] = level;
-            data.links.filter(l => l.source === nodeId).forEach(link => {
-                setLevels(link.target, level + 1);
-            });
-        }
-    }
-    const allTargetIds = new Set(data.links.map(l => l.target));
-    const rootNodeIds = data.nodes.filter(n => !allTargetIds.has(n.id)).map(n => n.id);
-    rootNodeIds.forEach(nodeId => setLevels(nodeId, 0));
-    nodes.forEach(node => {
-        node.level = nodeLevels[node.id];
-        if (node.level === undefined) {
-            node.level = Math.max(...Object.values(nodeLevels)) + 1;
-        }
-    });
-
-    // 2. Identify subtrees for x-positioning
-    const subtree = {};
-    function assignSubtree(nodeId, tree) {
-        if (!subtree[nodeId]) {
-            subtree[nodeId] = tree;
-            data.links.filter(l => l.source === nodeId).forEach(link => {
-                assignSubtree(link.target, tree);
-            });
-        }
-    }
-    const rootChildren = data.links.filter(l => l.source === 'Root');
-    rootChildren.forEach((link, i) => {
-        assignSubtree(link.target, i);
-    });
-    nodes.forEach(node => {
-        node.subtree = subtree[node.id];
-    });
-    const numSubtrees = rootChildren.length;
-
-
     // --- Simulation Setup ---
 
     const simulation = d3.forceSimulation(nodes)
-        .force("link", d3.forceLink(links).id(d => d.id).distance(200))
-        .force("charge", d3.forceManyBody().strength(-500))
-        .force("y", d3.forceY(d => d.level * 180 + 100).strength(1))
-        .force("x", d3.forceX(d => {
-            if (d.id === 'Root') {
-                return width / 2;
-            }
-            const separation = 400; // pixels between subtrees
-            const totalWidth = (numSubtrees - 1) * separation;
-            const xStart = (width - totalWidth) / 2;
-            return xStart + d.subtree * separation;
-        }).strength(0.8))
-        .force("collide", d3.forceCollide().radius(d => (d.id.length * 6) + 40));
+        .force("link", d3.forceLink(links).id(d => d.id).distance(d => 100 + (d.label || "").length * 5))
+        .force("charge", d3.forceManyBody().strength(-1500))
+        .force("center", d3.forceCenter(width / 2, height / 2))
+        .force("collide", d3.forceCollide().radius(d => (d.id.length * 10) + 80));
 
 
     // --- SVG Rendering ---
