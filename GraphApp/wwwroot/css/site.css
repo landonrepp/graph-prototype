@@ -44,6 +44,10 @@ body {
   content: "An error has occurred.";
 }
 
+main, body,html {
+  height: 100%;
+}
+
 .node text {
   fill: #fff;
   background-color: green;

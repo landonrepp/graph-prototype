@@ -19,7 +19,7 @@ function renderD3Graph(containerId, nodes, links, dotNetObject) {
 
     const simulation = d3.forceSimulation(nodes)
         .force("link", d3.forceLink(links).id(d => d.id).distance(100))
-        .force("charge", d3.forceManyBody().strength(-300))
+        .force("charge", d3.forceManyBody().strength(-100))
         .force("center", d3.forceCenter(width / 2, height / 2));
 
     const link = svg.append("g")
