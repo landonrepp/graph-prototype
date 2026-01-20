@@ -44,8 +44,18 @@ body {
   content: "An error has occurred.";
 }
 
+.main-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: flex-start;
+  height: 100%;
+  width: 100%;
+}
+
 main, body,html {
   height: 100%;
+  width: 100%;
 }
 
 .node text {
