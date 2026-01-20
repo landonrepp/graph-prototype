@@ -1,12 +1,17 @@
 @inject GraphStateService GraphState
 
-<div style="height:100%; width: fit-content; padding: 30px; background: #666; color: white; overflow-y: auto;">
+<div style="height:100%; width: fit-content; padding: 30px; background: #666; color: white; display: flex; flex-direction: column;">
     <h3>Cities</h3>
-    @foreach (var city in GraphState.AllCities)
-    {
-        <div>
-            <input type="checkbox" id="@city" @onchange="() => GraphState.ToggleCitySelection(city)" checked="@GraphState.SelectedCities.Contains(city)" />
-            <label for="@city">@city</label>
-        </div>
-    }
+    <button @onclick="() => GraphState.ToggleSelectAll()">
+        @(GraphState.SelectedCities.Count == GraphState.AllCities.Count ? "Deselect All" : "Select All")
+    </button>
+    <div style="overflow-y: auto; margin-top: 10px;">
+        @foreach (var city in GraphState.AllCities)
+        {
+            <div>
+                <input type="checkbox" id="@city" @onchange="() => GraphState.ToggleCitySelection(city)" checked="@GraphState.SelectedCities.Contains(city)" />
+                <label for="@city">@city</label>
+            </div>
+        }
+    </div>
 </div>

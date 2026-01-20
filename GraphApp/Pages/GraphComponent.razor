@@ -5,12 +5,14 @@
 @inject IJSRuntime JSRuntime
 
 @code {
-    private List<Node> Nodes { get; set; } = new List<Node>();
-    private List<Link> Links { get; set; } = new List<Link>();
-
     protected override void OnInitialized()
     {
-        GraphState.OnChange += StateHasChanged;
+        GraphState.OnChange += HandleStateChange;
+    }
+
+    private async void HandleStateChange()
+    {
+        await InvokeAsync(StateHasChanged);
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -36,18 +38,21 @@
 
         if (nodesToRender.Any())
         {
-            await JSRuntime.InvokeVoidAsync("renderD3Graph", "graph-container", nodesToRender, linksToRender, DotNetObjectReference.Create(this));
+            await JSRuntime.InvokeVoidAsync("renderD3Graph", "graph-container", nodesToRender, linksToRender, DotNetObjectReference.Create(this), GraphState.LastSelectedCity);
         }
     }
 
     [JSInvokable]
-    public void OnLabelClicked(string nodeId)
+    public async Task OnLabelClicked(string nodeId)
     {
-        GraphState.SelectCity(nodeId);
+        await InvokeAsync(() =>
+        {
+            GraphState.SelectCity(nodeId);
+        });
     }
 
     public void Dispose()
     {
-        GraphState.OnChange -= StateHasChanged;
+        GraphState.OnChange -= HandleStateChange;
     }
 }

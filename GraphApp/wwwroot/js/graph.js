@@ -1,4 +1,4 @@
-function renderD3Graph(containerId, nodes, links, dotNetObject) {
+function renderD3Graph(containerId, nodes, links, dotNetObject, lastSelectedCity) {
     const container = document.getElementById(containerId);
     if (!container) {
         console.error(`Container with id ${containerId} not found.`);
@@ -17,6 +17,20 @@ function renderD3Graph(containerId, nodes, links, dotNetObject) {
         }))
         .append("g");
 
+    // Add arrowhead marker definition
+    svg.append("defs").append("marker")
+        .attr("id", "arrowhead")
+        .attr("viewBox", "-0 -5 10 10")
+        .attr("refX", 25) // This positions the arrow relative to the end of the line. Adjust as needed.
+        .attr("refY", 0)
+        .attr("orient", "auto")
+        .attr("markerWidth", 6)
+        .attr("markerHeight", 6)
+        .attr("xoverflow", "visible")
+        .append("path")
+        .attr("d", "M 0,-5 L 10,0 L 0,5")
+        .attr("fill", "#999"); // Color of the arrowhead
+
     const simulation = d3.forceSimulation(nodes)
         .force("link", d3.forceLink(links).id(d => d.id).distance(100))
         .force("charge", d3.forceManyBody().strength(-100))
@@ -27,7 +41,8 @@ function renderD3Graph(containerId, nodes, links, dotNetObject) {
         .selectAll("line")
         .data(links)
         .enter().append("line")
-        .attr("class", "link");
+        .attr("class", "link")
+        .attr("marker-end", "url(#arrowhead)"); // Apply the arrowhead marker
 
     const node = svg.append("g")
         .attr("class", "nodes")
@@ -37,7 +52,7 @@ function renderD3Graph(containerId, nodes, links, dotNetObject) {
 
     const circles = node.append("circle")
         .attr("r", 10)
-        .attr("fill", "green");
+        .attr("fill", d => (d.id === lastSelectedCity) ? "blue" : "green");
 
     const labels = node.append("text")
         .text(d => d.id)
@@ -46,6 +61,7 @@ function renderD3Graph(containerId, nodes, links, dotNetObject) {
         .on("click", (event, d) => {
             dotNetObject.invokeMethodAsync('OnLabelClicked', d.id);
         });
+
 
     node.append("title")
         .text(d => d.id);

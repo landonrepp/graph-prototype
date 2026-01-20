@@ -4,6 +4,7 @@ public class GraphStateService
 {
     public List<string> AllCities { get; private set; } = new();
     public List<string> SelectedCities { get; private set; } = new();
+    public string? LastSelectedCity { get; private set; }
     public List<Node> Nodes { get; private set; } = new();
     public List<Link> Links { get; private set; } = new();
 
@@ -22,7 +23,9 @@ public class GraphStateService
         AllCities = Nodes.Select(n => n.Id).Distinct().OrderBy(c => c).ToList();
         if (AllCities.Any())
         {
-            SelectedCities.Add(AllCities.First());
+            var firstCity = AllCities.First();
+            SelectedCities.Add(firstCity);
+            LastSelectedCity = firstCity;
         }
         NotifyStateChanged();
     }
@@ -32,21 +35,50 @@ public class GraphStateService
         if (SelectedCities.Contains(city))
         {
             SelectedCities.Remove(city);
+            LastSelectedCity = SelectedCities.LastOrDefault();
         }
         else
         {
             SelectedCities.Add(city);
+            LastSelectedCity = city;
         }
         NotifyStateChanged();
     }
 
     public void SelectCity(string city)
     {
+        bool changed = false;
         if (!SelectedCities.Contains(city))
         {
             SelectedCities.Add(city);
+            changed = true;
+        }
+
+        if (LastSelectedCity != city)
+        {
+            LastSelectedCity = city;
+            changed = true;
+        }
+
+        if (changed)
+        {
             NotifyStateChanged();
         }
+    }
+
+    public void ToggleSelectAll()
+    {
+        if (SelectedCities.Count == AllCities.Count)
+        {
+            SelectedCities.Clear();
+            LastSelectedCity = null;
+        }
+        else
+        {
+            SelectedCities = new List<string>(AllCities);
+            LastSelectedCity = SelectedCities.LastOrDefault();
+        }
+        NotifyStateChanged();
     }
 
     private void NotifyStateChanged() => OnChange?.Invoke();
