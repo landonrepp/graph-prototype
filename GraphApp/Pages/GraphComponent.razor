@@ -1,4 +1,5 @@
-@inject KustoService Kusto
+@inject GraphStateService GraphState
+@implements IDisposable
 <div id="graph-container" style="width: 100%; height: 100%;"></div>
 
 @inject IJSRuntime JSRuntime
@@ -7,22 +8,46 @@
     private List<Node> Nodes { get; set; } = new List<Node>();
     private List<Link> Links { get; set; } = new List<Link>();
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        (Nodes, Links) = await Kusto.GetStormEventsGraphData();
+        GraphState.OnChange += StateHasChanged;
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (Nodes.Any())
+        // 1. Determine which links to render based on selected cities
+        var linksToRender = GraphState.Links
+            .Where(l => GraphState.SelectedCities.Contains(l.Source) || GraphState.SelectedCities.Contains(l.Target))
+            .ToList();
+
+        // 2. Determine which nodes to render:
+        //    a. All explicitly selected cities
+        //    b. All nodes connected by the linksToRender (even if not explicitly selected)
+        var nodesToRenderIds = new HashSet<string>(GraphState.SelectedCities);
+        foreach (var link in linksToRender)
         {
-            await JSRuntime.InvokeVoidAsync("renderD3Graph", "graph-container", Nodes, Links, DotNetObjectReference.Create(this));
+            nodesToRenderIds.Add(link.Source);
+            nodesToRenderIds.Add(link.Target);
+        }
+
+        var nodesToRender = GraphState.Nodes
+            .Where(n => nodesToRenderIds.Contains(n.Id))
+            .ToList();
+
+        if (nodesToRender.Any())
+        {
+            await JSRuntime.InvokeVoidAsync("renderD3Graph", "graph-container", nodesToRender, linksToRender, DotNetObjectReference.Create(this));
         }
     }
 
     [JSInvokable]
     public void OnLabelClicked(string nodeId)
     {
-        Console.WriteLine($"Node {nodeId} was clicked!");
+        GraphState.SelectCity(nodeId);
+    }
+
+    public void Dispose()
+    {
+        GraphState.OnChange -= StateHasChanged;
     }
 }

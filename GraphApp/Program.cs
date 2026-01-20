@@ -6,6 +6,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddSingleton<KustoService>();
+builder.Services.AddSingleton<GraphStateService>();
 
 var app = builder.Build();
 

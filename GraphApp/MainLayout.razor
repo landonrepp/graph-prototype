@@ -1,7 +1,14 @@
 ﻿@inherits LayoutComponentBase
-
+@inject GraphStateService GraphState
 
 <div class="main-container">
     <Sidebar/>
     <main> @Body </main>
 </div>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await GraphState.InitializeAsync();
+    }
+}

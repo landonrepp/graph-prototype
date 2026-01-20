@@ -1,3 +1,12 @@
-<div style="height:100%; width: fit-content; padding: 30px; background: #666">
-    test
+@inject GraphStateService GraphState
+
+<div style="height:100%; width: fit-content; padding: 30px; background: #666; color: white; overflow-y: auto;">
+    <h3>Cities</h3>
+    @foreach (var city in GraphState.AllCities)
+    {
+        <div>
+            <input type="checkbox" id="@city" @onchange="() => GraphState.ToggleCitySelection(city)" checked="@GraphState.SelectedCities.Contains(city)" />
+            <label for="@city">@city</label>
+        </div>
+    }
 </div>
